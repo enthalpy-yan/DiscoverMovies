@@ -15,16 +15,18 @@ import com.example.han.discovermovies.models.DiscoverResponse;
 import com.example.han.discovermovies.services.MovieService;
 
 import rx.Observer;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class MainMoviesActivityFragment extends Fragment {
 
-    private MovieService mMovieService;
     private final String LOG_TAG = MainMoviesActivityFragment.class.getSimpleName();
+    private MovieService mMovieService;
+    private Subscription subscription;
+    private MovieCardAdapter movieCardAdapter;
+    private boolean viewLoading = true;
+    private int pastVisibleItems, visibleItemCount, totalItemCount;
 
     public MainMoviesActivityFragment() {
     }
@@ -33,16 +35,12 @@ public class MainMoviesActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main_movies, container, false);
-        RecyclerView mRecyclerView = (RecyclerView) rootView.findViewById(R.id.movies_recycler_view);
-        mRecyclerView.setHasFixedSize(true);
-        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        final MovieCardAdapter mMovieCardAdapter = new MovieCardAdapter();
-        mRecyclerView.setAdapter(mMovieCardAdapter);
-        mMovieService = new MovieService();
-        mMovieService.getApi()
-                .getMovies()
+        movieCardAdapter = new MovieCardAdapter();
+        RecyclerView mRecyclerView = this.setRecyclerView(rootView);
+        mRecyclerView.setAdapter(movieCardAdapter);
+        this.mMovieService = new MovieService();
+        this.subscription = mMovieService.getApi()
+                .getMovies("vote_average.desc")
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<DiscoverResponse>() {
@@ -58,10 +56,46 @@ public class MainMoviesActivityFragment extends Fragment {
 
                                @Override
                                public void onNext(DiscoverResponse movies) {
-                                   mMovieCardAdapter.addData(movies.getResults());
+                                   movieCardAdapter.addData(movies.getResults());
                                }
                            }
                 );
         return rootView;
+    }
+
+    @Override
+    public void onDestroy() {
+        this.subscription.unsubscribe();
+        super.onDestroy();
+    }
+
+    private RecyclerView setRecyclerView(View rootView) {
+        RecyclerView mRecyclerView = (RecyclerView) rootView.findViewById(R.id.movies_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        final StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                visibleItemCount = mLayoutManager.getChildCount();
+                totalItemCount = mLayoutManager.getItemCount();
+                int[] firstVisibleItems = null;
+                firstVisibleItems = mLayoutManager.findFirstVisibleItemPositions(firstVisibleItems);
+                if(firstVisibleItems != null && firstVisibleItems.length > 0) {
+                    pastVisibleItems = firstVisibleItems[0];
+                }
+
+                if (viewLoading) {
+                    if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
+                        viewLoading = false;
+                        Log.d(LOG_TAG, "END OF ITEMS");
+                    }
+                }
+            }
+        });
+
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        return mRecyclerView;
     }
 }

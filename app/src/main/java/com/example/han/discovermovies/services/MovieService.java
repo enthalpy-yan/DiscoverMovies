@@ -9,10 +9,13 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
 import retrofit.http.GET;
+import retrofit.http.Query;
 import rx.Observable;
 
 public class MovieService {
@@ -60,6 +63,6 @@ public class MovieService {
 
     public interface MovieApi {
         @GET("3/discover/movie")
-        Observable<DiscoverResponse> getMovies();
+        Observable<DiscoverResponse> getMovies(@Query("sort_by") String sortBy);
     }
 }
