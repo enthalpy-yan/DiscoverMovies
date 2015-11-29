@@ -40,7 +40,9 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.View
     public MovieCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.movies_recycler_view, parent, false);
-        ViewHolder viewholder = new ViewHolder(v);
+        ViewHolder viewholder = new ViewHolder(v, movie -> {
+            Log.d(LOG_TAG, movie.getTitle());
+        });
         return viewholder;
     }
 
@@ -69,8 +71,9 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.View
         public TextView movieOverview;
         public CardView movieCard;
         public Movie mMovie= null;
+        private ICardViewClicks cardViewClickListener;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, ICardViewClicks listener) {
             super(itemView);
             movieCard = (CardView) itemView.findViewById(R.id.movie_card);
             movieTitle = (TextView) itemView.findViewById(R.id.movie_title);
@@ -78,13 +81,14 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.View
             movieRating = (TextView) itemView.findViewById(R.id.movie_rating);
             movieOverview = (TextView) itemView.findViewById(R.id.movie_overview);
             movieCard.setClickable(true);
+            cardViewClickListener = listener;
             movieCard.setOnClickListener(v -> {
-                Log.v(LOG_TAG, "Click" + mMovie.getOverview());
+                cardViewClickListener.onCardClick(mMovie);
             });
         }
 
         public static interface ICardViewClicks {
-            public void onCardClick();
+            public void onCardClick(Movie movie);
         }
     }
 
