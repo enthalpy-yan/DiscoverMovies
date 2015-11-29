@@ -1,7 +1,9 @@
 package com.example.han.discovermovies.adapters;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import java.util.List;
 
 
 public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.ViewHolder> {
+    private static final String LOG_TAG = MovieCardAdapter.class.getSimpleName();
     private List<Movie> mMovies;
 
     public MovieCardAdapter() {
@@ -47,6 +50,7 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.View
         holder.movieTitle.setText(movie.getTitle());
         holder.movieRating.setText(String.valueOf(movie.getVoteAverage()));
         holder.movieOverview.setText(movie.getOverview());
+        holder.mMovie = movie;
         Context context = holder.moviePic.getContext();
         Picasso.with(context)
                 .load(movie.getPosterPath())
@@ -58,18 +62,31 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.View
         return mMovies.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView movieTitle;
         public ImageView moviePic;
         public TextView movieRating;
         public TextView movieOverview;
+        public CardView movieCard;
+        public Movie mMovie= null;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            movieCard = (CardView) itemView.findViewById(R.id.movie_card);
             movieTitle = (TextView) itemView.findViewById(R.id.movie_title);
             moviePic = (ImageView) itemView.findViewById(R.id.movie_picture);
             movieRating = (TextView) itemView.findViewById(R.id.movie_rating);
             movieOverview = (TextView) itemView.findViewById(R.id.movie_overview);
+            movieCard.setClickable(true);
+            movieCard.setOnClickListener(v -> {
+                Log.v(LOG_TAG, "Click" + mMovie.getOverview());
+            });
+        }
+
+        public static interface ICardViewClicks {
+            public void onCardClick();
         }
     }
+
+
 }

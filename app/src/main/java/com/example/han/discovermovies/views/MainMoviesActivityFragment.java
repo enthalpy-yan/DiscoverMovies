@@ -5,17 +5,19 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.han.discovermovies.R;
 import com.example.han.discovermovies.adapters.MovieCardAdapter;
 import com.example.han.discovermovies.services.MovieService;
+import com.jakewharton.rxbinding.support.v7.widget.RxRecyclerView;
+import com.jakewharton.rxbinding.view.RxView;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -100,12 +102,16 @@ public class MainMoviesActivityFragment extends Fragment {
                     pastVisibleItems = firstVisibleItems[0];
                 }
 
-                if (page <= 10) {
-                    if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
-                        page += 1;
-                        getMovies(mMovieService, movieCardAdapter, orderBy, page, false);
+                if (viewLoading) {
+                    if (page <= 10) {
+                        if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
+                            viewLoading = false;
+                            page += 1;
+                            getMovies(mMovieService, movieCardAdapter, orderBy, page, false);
+                        }
                     }
                 }
+
             }
         });
 
@@ -124,6 +130,7 @@ public class MainMoviesActivityFragment extends Fragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(movies -> {
                     movieCardAdapter.addData(movies.getResults());
+                    viewLoading = true;
                     if (isRefresh) {
                         mRecyclerView.getLayoutManager().scrollToPosition(0);
                     }
