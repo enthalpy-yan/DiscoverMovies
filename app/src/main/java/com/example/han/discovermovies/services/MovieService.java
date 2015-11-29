@@ -34,6 +34,7 @@ public class MovieService {
                         .build();
                 HttpUrl url = newRequest.httpUrl().newBuilder()
                         .addQueryParameter("api_key", API_KEY)
+                        .addQueryParameter("vote_count.gte", "1000")
                         .build();
                 newRequest = newRequest.newBuilder().url(url).build();
                 return chain.proceed(newRequest);
@@ -63,6 +64,6 @@ public class MovieService {
 
     public interface MovieApi {
         @GET("3/discover/movie")
-        Observable<DiscoverResponse> getMovies(@Query("sort_by") String sortBy);
+        Observable<DiscoverResponse> getMovies(@Query("sort_by") String sortBy, @Query("page") int page);
     }
 }

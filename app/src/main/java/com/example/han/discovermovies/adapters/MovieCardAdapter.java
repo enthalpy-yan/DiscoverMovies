@@ -2,14 +2,12 @@ package com.example.han.discovermovies.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.han.discovermovies.BuildConfig;
 import com.example.han.discovermovies.R;
 import com.example.han.discovermovies.models.Movie;
 import com.squareup.picasso.Picasso;

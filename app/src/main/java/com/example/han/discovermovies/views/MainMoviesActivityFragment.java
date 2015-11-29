@@ -4,17 +4,14 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.han.discovermovies.R;
 import com.example.han.discovermovies.adapters.MovieCardAdapter;
-import com.example.han.discovermovies.models.DiscoverResponse;
 import com.example.han.discovermovies.services.MovieService;
 
-import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -25,6 +22,7 @@ public class MainMoviesActivityFragment extends Fragment {
     private MovieService mMovieService;
     private Subscription subscription;
     private MovieCardAdapter movieCardAdapter;
+    private int page = 1;
     private boolean viewLoading = true;
     private int pastVisibleItems, visibleItemCount, totalItemCount;
 
@@ -39,27 +37,7 @@ public class MainMoviesActivityFragment extends Fragment {
         RecyclerView mRecyclerView = this.setRecyclerView(rootView);
         mRecyclerView.setAdapter(movieCardAdapter);
         this.mMovieService = new MovieService();
-        this.subscription = mMovieService.getApi()
-                .getMovies("vote_average.desc")
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<DiscoverResponse>() {
-                               @Override
-                               public void onCompleted() {
-
-                               }
-
-                               @Override
-                               public void onError(Throwable e) {
-                                   Log.e(LOG_TAG, e.getMessage());
-                               }
-
-                               @Override
-                               public void onNext(DiscoverResponse movies) {
-                                   movieCardAdapter.addData(movies.getResults());
-                               }
-                           }
-                );
+        this.subscription = this.getMovies(this.mMovieService, this.movieCardAdapter, page);
         return rootView;
     }
 
@@ -82,14 +60,14 @@ public class MainMoviesActivityFragment extends Fragment {
                 totalItemCount = mLayoutManager.getItemCount();
                 int[] firstVisibleItems = null;
                 firstVisibleItems = mLayoutManager.findFirstVisibleItemPositions(firstVisibleItems);
-                if(firstVisibleItems != null && firstVisibleItems.length > 0) {
+                if (firstVisibleItems != null && firstVisibleItems.length > 0) {
                     pastVisibleItems = firstVisibleItems[0];
                 }
 
-                if (viewLoading) {
+                if (page <= 10) {
                     if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
-                        viewLoading = false;
-                        Log.d(LOG_TAG, "END OF ITEMS");
+                        getMovies(mMovieService, movieCardAdapter, page);
+                        page += 1;
                     }
                 }
             }
@@ -97,5 +75,15 @@ public class MainMoviesActivityFragment extends Fragment {
 
         mRecyclerView.setLayoutManager(mLayoutManager);
         return mRecyclerView;
+    }
+
+    private Subscription getMovies(MovieService movieService,
+                                   final MovieCardAdapter movieCardAdapter,
+                                   int page) {
+        return movieService.getApi()
+                .getMovies("vote_average.desc", page)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(movies -> movieCardAdapter.addData(movies.getResults()));
     }
 }
