@@ -31,7 +31,6 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.View
 
     public void clear() {
         mMovies.clear();
-        notifyDataSetChanged();
     }
 
     @Override

@@ -24,6 +24,7 @@ import rx.schedulers.Schedulers;
 public class MainMoviesActivityFragment extends Fragment {
 
     private final String LOG_TAG = MainMoviesActivityFragment.class.getSimpleName();
+    private RecyclerView mRecyclerView;
     private MovieService mMovieService;
     private Subscription subscription;
     private MovieCardAdapter movieCardAdapter;
@@ -43,7 +44,7 @@ public class MainMoviesActivityFragment extends Fragment {
         RecyclerView mRecyclerView = this.setRecyclerView(rootView);
         mRecyclerView.setAdapter(movieCardAdapter);
         this.mMovieService = new MovieService();
-        this.subscription = this.getMovies(mMovieService, movieCardAdapter, orderBy, page);
+        this.subscription = this.getMovies(mMovieService, movieCardAdapter, orderBy, page, true);
         this.setHasOptionsMenu(true);
         return rootView;
     }
@@ -77,15 +78,14 @@ public class MainMoviesActivityFragment extends Fragment {
             }
             page = 1;
             movieCardAdapter.clear();
-            getMovies(mMovieService, movieCardAdapter, orderBy, page);
+            getMovies(mMovieService, movieCardAdapter, orderBy, page, true);
         }
 
         return super.onOptionsItemSelected(item);
     }
 
     private RecyclerView setRecyclerView(View rootView) {
-        RecyclerView mRecyclerView = (RecyclerView) rootView.findViewById(R.id.movies_recycler_view);
-        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.movies_recycler_view);
         final StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
 
@@ -103,7 +103,7 @@ public class MainMoviesActivityFragment extends Fragment {
                 if (page <= 10) {
                     if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
                         page += 1;
-                        getMovies(mMovieService, movieCardAdapter, orderBy, page);
+                        getMovies(mMovieService, movieCardAdapter, orderBy, page, false);
                     }
                 }
             }
@@ -116,11 +116,17 @@ public class MainMoviesActivityFragment extends Fragment {
     private Subscription getMovies(MovieService movieService,
                                    final MovieCardAdapter movieCardAdapter,
                                    String orderBy,
-                                   int page) {
+                                   int page,
+                                   Boolean isRefresh) {
         return movieService.getApi()
                 .getMovies(orderBy, page)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(movies -> movieCardAdapter.addData(movies.getResults()));
+                .subscribe(movies -> {
+                    movieCardAdapter.addData(movies.getResults());
+                    if (isRefresh) {
+                        mRecyclerView.getLayoutManager().scrollToPosition(0);
+                    }
+                });
     }
 }
