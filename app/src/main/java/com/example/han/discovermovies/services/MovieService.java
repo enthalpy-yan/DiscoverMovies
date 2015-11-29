@@ -9,7 +9,6 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;

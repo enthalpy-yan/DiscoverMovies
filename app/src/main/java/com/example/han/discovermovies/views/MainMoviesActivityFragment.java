@@ -4,7 +4,12 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -22,6 +27,7 @@ public class MainMoviesActivityFragment extends Fragment {
     private MovieService mMovieService;
     private Subscription subscription;
     private MovieCardAdapter movieCardAdapter;
+    private String orderBy = "original_title.asc";
     private int page = 1;
     private boolean viewLoading = true;
     private int pastVisibleItems, visibleItemCount, totalItemCount;
@@ -37,7 +43,8 @@ public class MainMoviesActivityFragment extends Fragment {
         RecyclerView mRecyclerView = this.setRecyclerView(rootView);
         mRecyclerView.setAdapter(movieCardAdapter);
         this.mMovieService = new MovieService();
-        this.subscription = this.getMovies(this.mMovieService, this.movieCardAdapter, page);
+        this.subscription = this.getMovies(mMovieService, movieCardAdapter, orderBy, page);
+        this.setHasOptionsMenu(true);
         return rootView;
     }
 
@@ -45,6 +52,35 @@ public class MainMoviesActivityFragment extends Fragment {
     public void onDestroy() {
         this.subscription.unsubscribe();
         super.onDestroy();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main_movies, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            return true;
+        } else {
+            if (id == R.id.action_sort_by_date) {
+                orderBy = "release_date.desc";
+            } else if (id == R.id.action_sort_by_popularity) {
+                orderBy = "popularity.desc";
+            } else if (id == R.id.action_sort_by_rating) {
+                orderBy = "vote_average.desc";
+            } else if (id == R.id.action_sort_by_title) {
+                orderBy = "original_title.asc";
+            }
+            page = 1;
+            movieCardAdapter.clear();
+            getMovies(mMovieService, movieCardAdapter, orderBy, page);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private RecyclerView setRecyclerView(View rootView) {
@@ -66,8 +102,8 @@ public class MainMoviesActivityFragment extends Fragment {
 
                 if (page <= 10) {
                     if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
-                        getMovies(mMovieService, movieCardAdapter, page);
                         page += 1;
+                        getMovies(mMovieService, movieCardAdapter, orderBy, page);
                     }
                 }
             }
@@ -79,9 +115,10 @@ public class MainMoviesActivityFragment extends Fragment {
 
     private Subscription getMovies(MovieService movieService,
                                    final MovieCardAdapter movieCardAdapter,
+                                   String orderBy,
                                    int page) {
         return movieService.getApi()
-                .getMovies("vote_average.desc", page)
+                .getMovies(orderBy, page)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(movies -> movieCardAdapter.addData(movies.getResults()));
