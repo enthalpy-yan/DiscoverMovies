@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,18 +15,20 @@ import android.view.ViewGroup;
 
 import com.example.han.discovermovies.R;
 import com.example.han.discovermovies.adapters.MovieCardAdapter;
+import com.example.han.discovermovies.models.DiscoverResponse;
 import com.example.han.discovermovies.services.MovieService;
+import com.trello.rxlifecycle.FragmentEvent;
+import com.trello.rxlifecycle.components.RxFragment;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainMoviesActivityFragment extends Fragment {
+public class MainMoviesActivityFragment extends RxFragment {
 
     private final String LOG_TAG = MainMoviesActivityFragment.class.getSimpleName();
     private RecyclerView mRecyclerView;
     private MovieService mMovieService;
-    private Subscription subscription;
     private MovieCardAdapter movieCardAdapter;
     private String orderBy = "original_title.asc";
     private int page = 1;
@@ -47,14 +50,13 @@ public class MainMoviesActivityFragment extends Fragment {
             startActivity(intent);
         });
         this.mMovieService = new MovieService();
-        this.subscription = this.getMovies(mMovieService, movieCardAdapter, orderBy, page, true);
+        this.getMovies(mMovieService, movieCardAdapter, orderBy, page, true);
         this.setHasOptionsMenu(true);
         return rootView;
     }
 
     @Override
     public void onDestroy() {
-        this.subscription.unsubscribe();
         super.onDestroy();
     }
 
@@ -127,6 +129,7 @@ public class MainMoviesActivityFragment extends Fragment {
                                    Boolean isRefresh) {
         return movieService.getApi()
                 .getMovies(orderBy, page)
+                .compose(this.<DiscoverResponse>bindUntilEvent(FragmentEvent.DESTROY))
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(movies -> {
