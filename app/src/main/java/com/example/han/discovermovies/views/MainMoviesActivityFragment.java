@@ -1,7 +1,6 @@
 package com.example.han.discovermovies.views;
 
 import android.content.Intent;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -15,12 +14,14 @@ import android.view.ViewGroup;
 
 import com.example.han.discovermovies.R;
 import com.example.han.discovermovies.adapters.MovieCardAdapter;
-import com.example.han.discovermovies.models.DiscoverResponse;
+import com.example.han.discovermovies.models.Movie;
 import com.example.han.discovermovies.services.MovieService;
-import com.trello.rxlifecycle.FragmentEvent;
 import com.trello.rxlifecycle.components.RxFragment;
 
-import rx.Subscription;
+import java.util.ArrayList;
+import java.util.List;
+
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -30,8 +31,10 @@ public class MainMoviesActivityFragment extends RxFragment {
     private RecyclerView mRecyclerView;
     private MovieService mMovieService;
     private MovieCardAdapter movieCardAdapter;
+    private Observable<List<Movie>> mMovieObservable;
     private String orderBy = "original_title.asc";
     private int page = 1;
+    private int pageSize = 20;
     private boolean viewLoading = true;
     private int pastVisibleItems, visibleItemCount, totalItemCount;
 
@@ -39,20 +42,34 @@ public class MainMoviesActivityFragment extends RxFragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        setRetainInstance(true);
+        mMovieService = new MovieService();
+        mMovieObservable = this.getMovies(mMovieService, orderBy, page);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main_movies, container, false);
+        mRecyclerView = this.setRecyclerView(rootView);
+        return rootView;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         movieCardAdapter = new MovieCardAdapter();
-        RecyclerView mRecyclerView = this.setRecyclerView(rootView);
         mRecyclerView.setAdapter(movieCardAdapter);
         movieCardAdapter.setOnItemListener(movie -> {
             Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
             startActivity(intent);
         });
-        this.mMovieService = new MovieService();
-        this.getMovies(mMovieService, movieCardAdapter, orderBy, page, true);
-        this.setHasOptionsMenu(true);
-        return rootView;
+        mMovieObservable.subscribe(movies -> {
+            movieCardAdapter.addData(movies);
+        });
     }
 
     @Override
@@ -83,7 +100,11 @@ public class MainMoviesActivityFragment extends RxFragment {
             }
             page = 1;
             movieCardAdapter.clear();
-            getMovies(mMovieService, movieCardAdapter, orderBy, page, true);
+            mMovieObservable = this.getMovies(mMovieService, orderBy, page);
+            mMovieObservable.subscribe(movies -> {
+                movieCardAdapter.addData(movies);
+                mRecyclerView.scrollToPosition(0);
+            });
         }
 
         return super.onOptionsItemSelected(item);
@@ -110,7 +131,13 @@ public class MainMoviesActivityFragment extends RxFragment {
                         if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
                             viewLoading = false;
                             page += 1;
-                            getMovies(mMovieService, movieCardAdapter, orderBy, page, false);
+                            mMovieObservable = getMovies(mMovieService, orderBy, page);
+                            mMovieObservable.subscribe(movies -> {
+                                viewLoading = true;
+                                movieCardAdapter.clear();
+                                Log.d(LOG_TAG, String.valueOf(movies.size()));
+                                movieCardAdapter.addData(movies);
+                            });
                         }
                     }
                 }
@@ -122,22 +149,19 @@ public class MainMoviesActivityFragment extends RxFragment {
         return mRecyclerView;
     }
 
-    private Subscription getMovies(MovieService movieService,
-                                   final MovieCardAdapter movieCardAdapter,
-                                   String orderBy,
-                                   int page,
-                                   Boolean isRefresh) {
-        return movieService.getApi()
-                .getMovies(orderBy, page)
-                .compose(this.<DiscoverResponse>bindUntilEvent(FragmentEvent.DESTROY))
+    private Observable<List<Movie>> getMovies(MovieService movieService, String orderBy, int page) {
+        return Observable.range(1, page)
+                .concatMap(pageNum -> movieService.getApi().getMovies(orderBy, pageNum))
+                .map(result -> result.getResults())
+                .scan((List<Movie> results, List<Movie> result2) -> {
+                    List<Movie> ret = new ArrayList<>();
+                    ret.addAll(results);
+                    ret.addAll(result2);
+                    return ret;
+                })
+                .last()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(movies -> {
-                    movieCardAdapter.addData(movies.getResults());
-                    viewLoading = true;
-                    if (isRefresh) {
-                        mRecyclerView.getLayoutManager().scrollToPosition(0);
-                    }
-                });
+                .cache();
     }
 }
