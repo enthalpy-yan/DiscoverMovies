@@ -34,7 +34,6 @@ public class MainMoviesActivityFragment extends RxFragment {
     private Observable<List<Movie>> mMovieObservable;
     private String orderBy = "original_title.asc";
     private int page = 1;
-    private int pageSize = 20;
     private boolean viewLoading = true;
     private int pastVisibleItems, visibleItemCount, totalItemCount;
 
@@ -56,6 +55,24 @@ public class MainMoviesActivityFragment extends RxFragment {
         View rootView = inflater.inflate(R.layout.fragment_main_movies, container, false);
         mRecyclerView = this.setRecyclerView(rootView);
         return rootView;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, "onPause");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, "onStop");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(LOG_TAG, "onDestroy");
     }
 
     @Override
