@@ -3,7 +3,9 @@ package com.example.han.discovermovies.models;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Movie {
 
@@ -12,6 +14,7 @@ public class Movie {
     private boolean adult;
     @SerializedName("backdrop_path")
     private String backdropPath;
+    @SerializedName("genre_ids")
     private List<Integer> genreIds = new ArrayList<Integer>();
     private int id;
     @SerializedName("original_language")
@@ -72,8 +75,12 @@ public class Movie {
      * @return
      * The genreIds
      */
-    public List<Integer> getGenreIds() {
-        return genreIds;
+    public List<String> getGenreIds(Map<Integer, String> genreMap) {
+        List<String> ret = new ArrayList<>();
+        for (Integer genreId : genreIds) {
+            ret.add(genreMap.get(genreId));
+        }
+        return ret;
     }
 
     /**
