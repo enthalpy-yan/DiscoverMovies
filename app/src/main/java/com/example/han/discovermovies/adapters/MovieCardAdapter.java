@@ -76,6 +76,7 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.View
         holder.movieRating.setText(String.valueOf(movie.getVoteAverage()));
         List<String> genreList = movie.getGenreIds(genreMap);
         holder.movieGenres.setText(android.text.TextUtils.join(", ", genreList));
+        holder.movieReleaseDate.setText(movie.getReleaseDate());
         holder.mMovie = movie;
         Context context = holder.moviePic.getContext();
         Picasso.with(context)
@@ -94,6 +95,7 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.View
         public TextView movieRating;
         public TextView movieGenres;
         public CardView movieCard;
+        public TextView movieReleaseDate;
         public Movie mMovie= null;
 
         public ViewHolder(View itemView) {
@@ -103,6 +105,7 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.View
             moviePic = (ImageView) itemView.findViewById(R.id.movie_picture);
             movieRating = (TextView) itemView.findViewById(R.id.movie_rating);
             movieGenres = (TextView) itemView.findViewById(R.id.movie_genres);
+            movieReleaseDate = (TextView) itemView.findViewById(R.id.movie_release_date);
             movieCard.setClickable(true);
             movieCard.setOnClickListener(v -> {
                 cardViewClickListener.onCardClick(mMovie);

@@ -3,6 +3,10 @@
     <string name="action_settings">Settings</string>
     <string name="title_sort_pref">Sort Order</string>
     <string name="dialog_sort_pref">Sort Order</string>
+    <string name="dummy_movie_title">Movie Title</string>
+    <string name="dummy_movie_rating">9.9</string>
+    <string name="dummy_movie_release_date">2015-09-09</string>
+    <string name="dummy_movie_genres">Genre1, Genre2, Genre3</string>
     <string-array name="entries_sort_pref">
         <item>Title (A - Z)</item>
         <item>Release Date</item>

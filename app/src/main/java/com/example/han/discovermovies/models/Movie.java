@@ -22,7 +22,7 @@ public class Movie {
     @SerializedName("original_title")
     private String originalTitle;
     private String overview;
-    @SerializedName("release_data")
+    @SerializedName("release_date")
     private String releaseDate;
     @SerializedName("poster_path")
     private String posterPath;
