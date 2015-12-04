@@ -58,24 +58,6 @@ public class MainMoviesActivityFragment extends RxFragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(LOG_TAG, "onPause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(LOG_TAG, "onStop");
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.d(LOG_TAG, "onDestroy");
-    }
-
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         movieCardAdapter = new MovieCardAdapter();
