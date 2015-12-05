@@ -2,6 +2,7 @@ package com.example.han.discovermovies.services;
 
 import com.example.han.discovermovies.BuildConfig;
 import com.example.han.discovermovies.models.DiscoverResponse;
+import com.example.han.discovermovies.models.VideoResponse;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
@@ -34,7 +35,6 @@ public class MovieService {
                         .build();
                 HttpUrl url = newRequest.httpUrl().newBuilder()
                         .addQueryParameter("api_key", API_KEY)
-                        .addQueryParameter("vote_count.gte", "1000")
                         .build();
                 newRequest = newRequest.newBuilder().url(url).build();
                 return chain.proceed(newRequest);
@@ -65,5 +65,8 @@ public class MovieService {
     public interface MovieApi {
         @GET("3/movie/{sort_by}")
         Observable<DiscoverResponse> getMovies(@Path("sort_by") String sortBy, @Query("page") int page);
+
+        @GET("3/movie/{movie_id}/videos")
+        Observable<VideoResponse> getVideo(@Path("movie_id") String movieId);
     }
 }

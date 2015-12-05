@@ -20,4 +20,6 @@
         <item>popularity</item>
     </string-array>
     <string name="title_activity_test">testActivity</string>
+    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_movie_detail">MovieDetailActivity</string>
 </resources>

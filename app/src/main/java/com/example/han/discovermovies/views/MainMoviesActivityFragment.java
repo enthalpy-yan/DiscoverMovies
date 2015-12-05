@@ -64,8 +64,9 @@ public class MainMoviesActivityFragment extends RxFragment {
         movieCardAdapter = new MovieCardAdapter();
         mRecyclerView.setAdapter(movieCardAdapter);
         movieCardAdapter.setOnItemListener(movie -> {
-//            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-//            startActivity(intent);
+            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+            intent.putExtra("MOVIE_ID", String.valueOf(movie.getId()));
+            startActivity(intent);
         });
         mMovieObservable.subscribe(movies -> {
             movieCardAdapter.addData(movies);

@@ -55,7 +55,8 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton.rxbinding:rxbinding:0.3.0'
     compile 'com.jakewharton.rxbinding:rxbinding-recyclerview-v7:0.3.0'
-    compile 'com.google.apis:google-api-services-youtube:v3-rev155-1.21.0'
+    compile files('libs/YouTubeAndroidPlayerApi.jar')
+    compile 'com.github.ksoichiro:android-observablescrollview:1.6.0'
 }
 
 buildscript {

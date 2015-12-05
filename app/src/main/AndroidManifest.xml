@@ -21,6 +21,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".views.MovieDetailActivity"
+            android:label="@string/title_activity_movie_detail"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".views.MainMoviesActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.han.discovermovies.views.MainMoviesActivity" />
+        </activity>
     </application>
 
 </manifest>
