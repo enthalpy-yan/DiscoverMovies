@@ -36,6 +36,7 @@ public class MainMoviesActivityFragment extends RxFragment {
     private int page = 1;
     private boolean viewLoading = true;
     private int pastVisibleItems, visibleItemCount, totalItemCount;
+    private Menu mainMenu;
 
     public MainMoviesActivityFragment() {
     }
@@ -63,8 +64,8 @@ public class MainMoviesActivityFragment extends RxFragment {
         movieCardAdapter = new MovieCardAdapter();
         mRecyclerView.setAdapter(movieCardAdapter);
         movieCardAdapter.setOnItemListener(movie -> {
-            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-            startActivity(intent);
+//            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+//            startActivity(intent);
         });
         mMovieObservable.subscribe(movies -> {
             movieCardAdapter.addData(movies);
@@ -79,6 +80,7 @@ public class MainMoviesActivityFragment extends RxFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_main_movies, menu);
+        mainMenu = menu;
     }
 
     @Override
