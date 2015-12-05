@@ -14,13 +14,14 @@ import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
 import retrofit.http.GET;
+import retrofit.http.Path;
 import retrofit.http.Query;
 import rx.Observable;
 
 public class MovieService {
     private static final String BASE_URL = "http://api.themoviedb.org";
     //Replace with your MovieDB api key.
-    private static final String API_KEY = BuildConfig.API_KEY;
+    private static final String API_KEY = BuildConfig.MOVIE_DB_API_KEY;
     private final MovieApi mMovieApi;
 
     public MovieService() {
@@ -62,7 +63,7 @@ public class MovieService {
     }
 
     public interface MovieApi {
-        @GET("3/discover/movie")
-        Observable<DiscoverResponse> getMovies(@Query("sort_by") String sortBy, @Query("page") int page);
+        @GET("3/movie/{sort_by}")
+        Observable<DiscoverResponse> getMovies(@Path("sort_by") String sortBy, @Query("page") int page);
     }
 }

@@ -3,32 +3,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".views.MainMoviesActivity">
     <item
-        android:id="@+id/action_sort_by_title"
+        android:id="@+id/action_now_playing"
         android:orderInCategory="1"
-        android:title="Sort by Title"
+        android:title="Now Playing"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_sort_by_rating"
+        android:id="@+id/action_rating"
         android:orderInCategory="1"
-        android:title="Sort by Rating"
+        android:title="Top Rated"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_sort_by_date"
+        android:id="@+id/action_popular"
         android:orderInCategory="1"
-        android:title="Sort by Release Date"
+        android:title="Popular"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_sort_by_popularity"
+        android:id="@+id/action_upcoming"
         android:orderInCategory="1"
-        android:title="Sort by Popularity"
+        android:title="Upcoming"
         app:showAsAction="never"/>
 
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="5"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+    <!--<item-->
+        <!--android:id="@+id/action_settings"-->
+        <!--android:orderInCategory="5"-->
+        <!--android:title="@string/action_settings"-->
+        <!--app:showAsAction="never" />-->
 </menu>

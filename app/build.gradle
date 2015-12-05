@@ -2,16 +2,17 @@ apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 
 def MOVIE_DB_API_KEY = TheMovieDBApiKey;
+def YOUTUBE_API_KEY = YoutubeApiKey;
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion '23.0.2'
     defaultConfig {
         applicationId 'com.rxtesting.han.discovermovies'
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.01"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -19,13 +20,15 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField "String", "API_KEY", MOVIE_DB_API_KEY
+            buildConfigField "String", "MOVIE_DB_API_KEY", MOVIE_DB_API_KEY
+            buildConfigField "String", "YOUTUBE_API_KEY", YOUTUBE_API_KEY
         }
 
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "API_KEY", MOVIE_DB_API_KEY
+            buildConfigField "String", "MOVIE_DB_API_KEY", MOVIE_DB_API_KEY
+            buildConfigField "String", "YOUTUBE_API_KEY", YOUTUBE_API_KEY
         }
     }
     productFlavors {
@@ -52,6 +55,7 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton.rxbinding:rxbinding:0.3.0'
     compile 'com.jakewharton.rxbinding:rxbinding-recyclerview-v7:0.3.0'
+    compile 'com.google.apis:google-api-services-youtube:v3-rev155-1.21.0'
 }
 
 buildscript {

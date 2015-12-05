@@ -32,7 +32,7 @@ public class MainMoviesActivityFragment extends RxFragment {
     private MovieService mMovieService;
     private MovieCardAdapter movieCardAdapter;
     private Observable<List<Movie>> mMovieObservable;
-    private String orderBy = "original_title.asc";
+    private String orderBy = "now_playing";
     private int page = 1;
     private boolean viewLoading = true;
     private int pastVisibleItems, visibleItemCount, totalItemCount;
@@ -85,26 +85,22 @@ public class MainMoviesActivityFragment extends RxFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
-        } else {
-            if (id == R.id.action_sort_by_date) {
-                orderBy = "release_date.desc";
-            } else if (id == R.id.action_sort_by_popularity) {
-                orderBy = "popularity.desc";
-            } else if (id == R.id.action_sort_by_rating) {
-                orderBy = "vote_average.desc";
-            } else if (id == R.id.action_sort_by_title) {
-                orderBy = "original_title.asc";
-            }
-            page = 1;
-            movieCardAdapter.clear();
-            mMovieObservable = this.getMovies(mMovieService, orderBy, page);
-            mMovieObservable.subscribe(movies -> {
-                movieCardAdapter.addData(movies);
-                mRecyclerView.scrollToPosition(0);
-            });
+        if (id == R.id.action_now_playing) {
+            orderBy = "now_playing";
+        } else if (id == R.id.action_popular) {
+            orderBy = "popular";
+        } else if (id == R.id.action_rating) {
+            orderBy = "top_rated";
+        } else if (id == R.id.action_upcoming) {
+            orderBy = "upcoming";
         }
+        page = 1;
+        movieCardAdapter.clear();
+        mMovieObservable = this.getMovies(mMovieService, orderBy, page);
+        mMovieObservable.subscribe(movies -> {
+            movieCardAdapter.addData(movies);
+            mRecyclerView.scrollToPosition(0);
+        });
 
         return super.onOptionsItemSelected(item);
     }
